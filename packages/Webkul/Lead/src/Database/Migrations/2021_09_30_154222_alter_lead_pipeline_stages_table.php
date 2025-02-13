@@ -14,22 +14,22 @@ return new class extends Migration
      */
     public function up()
     {
-        $tablePrefix = DB::getTablePrefix();
-
         Schema::table('lead_pipeline_stages', function (Blueprint $table) {
             $table->string('code')->after('id')->nullable();
             $table->string('name')->after('code')->nullable();
         });
 
-        DB::table('lead_pipeline_stages')
-            ->join('lead_stages', 'lead_pipeline_stages.lead_stage_id', '=', 'lead_stages.id')
-            ->update([
-                'lead_pipeline_stages.code' => DB::raw($tablePrefix.'lead_stages.code'),
-                'lead_pipeline_stages.name' => DB::raw($tablePrefix.'lead_stages.name'),
-            ]);
+        // Perbaikan query update untuk PostgreSQL
+        DB::statement('
+            UPDATE lead_pipeline_stages lps
+            SET code = ls.code,
+                name = ls.name
+            FROM lead_stages ls
+            WHERE lps.lead_stage_id = ls.id
+        ');
 
-        Schema::table('lead_pipeline_stages', function (Blueprint $table) use ($tablePrefix) {
-            $table->dropForeign($tablePrefix.'lead_pipeline_stages_lead_stage_id_foreign');
+        Schema::table('lead_pipeline_stages', function (Blueprint $table) {
+            $table->dropForeign('lead_pipeline_stages_lead_stage_id_foreign');
             $table->dropColumn('lead_stage_id');
 
             $table->unique(['code', 'lead_pipeline_id']);
@@ -45,13 +45,14 @@ return new class extends Migration
     public function down()
     {
         Schema::table('lead_pipeline_stages', function (Blueprint $table) {
-            $table->dropColumn('code');
-            $table->dropColumn('name');
+            $table->dropUnique(['lead_pipeline_stages_code_lead_pipeline_id_unique']);
+            $table->dropUnique(['lead_pipeline_stages_name_lead_pipeline_id_unique']);
 
             $table->integer('lead_stage_id')->unsigned();
             $table->foreign('lead_stage_id')->references('id')->on('lead_stages')->onDelete('cascade');
 
-            $table->dropUnique(['lead_pipeline_stages_code_lead_pipeline_id_unique', 'lead_pipeline_stages_name_lead_pipeline_id_unique']);
+            $table->dropColumn('code');
+            $table->dropColumn('name');
         });
     }
 };

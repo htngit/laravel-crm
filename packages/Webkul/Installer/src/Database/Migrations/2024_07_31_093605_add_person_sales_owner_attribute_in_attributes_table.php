@@ -13,9 +13,22 @@ return new class extends Migration
     {
         $now = Carbon::now();
 
-        DB::table('attributes')
-            ->insert([
-                [
+        // Wait for initial seeding to complete by checking for a known attribute
+        $initialSeedingComplete = DB::table('attributes')
+            ->where('code', 'name')
+            ->where('entity_type', 'products')
+            ->exists();
+
+        if ($initialSeedingComplete) {
+            // Check if our attribute already exists
+            $exists = DB::table('attributes')
+                ->where('code', 'user_id')
+                ->where('entity_type', 'persons')
+                ->exists();
+
+            if (!$exists) {
+                // Just use regular insert, let PostgreSQL handle the ID
+                DB::table('attributes')->insert([
                     'code'            => 'user_id',
                     'name'            => trans('installer::app.seeders.attributes.persons.sales-owner'),
                     'type'            => 'lookup',
@@ -29,12 +42,20 @@ return new class extends Migration
                     'is_user_defined' => '0',
                     'created_at'      => $now,
                     'updated_at'      => $now,
-                ],
-            ]);
+                ]);
+            }
+        }
     }
 
     /**
      * Reverse the migrations.
      */
-    public function down(): void {}
+    public function down(): void
+    {
+        // Optional: Implement if you want to be able to rollback this migration
+        DB::table('attributes')
+            ->where('code', 'user_id')
+            ->where('entity_type', 'persons')
+            ->delete();
+    }
 };

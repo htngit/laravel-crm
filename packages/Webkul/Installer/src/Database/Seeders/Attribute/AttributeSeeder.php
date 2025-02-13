@@ -274,20 +274,6 @@ class AttributeSeeder extends Seeder
                 'is_user_defined' => '0',
                 'created_at'      => $now,
                 'updated_at'      => $now,
-            ], [
-                'code'            => 'user_id',
-                'name'            => trans('installer::app.seeders.attributes.organizations.sales-owner', [], $defaultLocale),
-                'type'            => 'lookup',
-                'entity_type'     => 'organizations',
-                'lookup_type'     => 'users',
-                'validation'      => null,
-                'sort_order'      => '3',
-                'is_required'     => '0',
-                'is_unique'       => '0',
-                'quick_add'       => '1',
-                'is_user_defined' => '0',
-                'created_at'      => $now,
-                'updated_at'      => $now,
             ],
 
             /**

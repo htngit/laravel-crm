@@ -1,31 +1,15 @@
 <?php
 
+namespace Webkul\Installer\Database\Seeders\Attribute;
+
 use Carbon\Carbon;
-use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
-return new class extends Migration
+class OrganizationSalesOwnerSeeder extends Seeder
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
-{
-    $now = Carbon::now();
-
-    // Cek apakah data sudah ada
-    $existingAttribute = DB::table('attributes')
-        ->where('code', 'user_id')
-        ->where('entity_type', 'organizations')
-        ->first();
-
-    // Wait for initial seeding to complete by checking for a known attribute
-    $initialSeedingComplete = DB::table('attributes')
-        ->where('code', 'name')
-        ->where('entity_type', 'products')
-        ->exists();
-
-    if ($initialSeedingComplete) {
+    public function run($parameters = [])
+    {
         // Check if our attribute already exists
         $exists = DB::table('attributes')
             ->where('code', 'user_id')
@@ -33,7 +17,6 @@ return new class extends Migration
             ->exists();
 
         if (!$exists) {
-            // Just use regular insert, let PostgreSQL handle the ID
             DB::table('attributes')->insert([
                 'code'            => 'user_id',
                 'name'            => trans('installer::app.seeders.attributes.organizations.sales-owner'),
@@ -46,15 +29,9 @@ return new class extends Migration
                 'is_unique'       => '0',
                 'quick_add'       => '1',
                 'is_user_defined' => '0',
-                'created_at'      => $now,
-                'updated_at'      => $now,
+                'created_at'      => Carbon::now(),
+                'updated_at'      => Carbon::now(),
             ]);
         }
     }
 }
-
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void {}
-};

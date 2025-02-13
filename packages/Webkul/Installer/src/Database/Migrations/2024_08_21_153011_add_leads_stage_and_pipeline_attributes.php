@@ -13,9 +13,22 @@ return new class extends Migration
     {
         $now = Carbon::now();
 
-        DB::table('attributes')
-            ->insert([
-                [
+        // Wait for initial seeding to complete by checking for a known attribute
+        $initialSeedingComplete = DB::table('attributes')
+            ->where('code', 'name')
+            ->where('entity_type', 'products')
+            ->exists();
+
+        if ($initialSeedingComplete) {
+            // Check pipeline attribute
+            $pipelineExists = DB::table('attributes')
+                ->where('code', 'lead_pipeline_id')
+                ->where('entity_type', 'leads')
+                ->exists();
+
+            if (!$pipelineExists) {
+                // Insert pipeline attribute
+                DB::table('attributes')->insert([
                     'code'            => 'lead_pipeline_id',
                     'name'            => trans('installer::app.seeders.attributes.leads.pipeline'),
                     'type'            => 'lookup',
@@ -29,7 +42,18 @@ return new class extends Migration
                     'is_user_defined' => '0',
                     'created_at'      => $now,
                     'updated_at'      => $now,
-                ], [
+                ]);
+            }
+
+            // Check stage attribute
+            $stageExists = DB::table('attributes')
+                ->where('code', 'lead_pipeline_stage_id')
+                ->where('entity_type', 'leads')
+                ->exists();
+
+            if (!$stageExists) {
+                // Insert stage attribute
+                DB::table('attributes')->insert([
                     'code'            => 'lead_pipeline_stage_id',
                     'name'            => trans('installer::app.seeders.attributes.leads.stage'),
                     'type'            => 'lookup',
@@ -43,8 +67,9 @@ return new class extends Migration
                     'is_user_defined' => '0',
                     'created_at'      => $now,
                     'updated_at'      => $now,
-                ],
-            ]);
+                ]);
+            }
+        }
     }
 
     /**
@@ -52,6 +77,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        DB::table('attributes')
+            ->whereIn('code', ['lead_pipeline_id', 'lead_pipeline_stage_id'])
+            ->where('entity_type', 'leads')
+            ->delete();
     }
 };
