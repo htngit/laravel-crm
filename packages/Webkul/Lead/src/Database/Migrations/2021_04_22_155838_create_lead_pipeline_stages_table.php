@@ -15,14 +15,20 @@ return new class extends Migration
     {
         Schema::create('lead_pipeline_stages', function (Blueprint $table) {
             $table->increments('id');
+            $table->unsignedInteger('lead_stage_id');
+            $table->unsignedInteger('lead_pipeline_id');
             $table->integer('probability')->default(0);
             $table->integer('sort_order')->default(0);
 
-            $table->integer('lead_stage_id')->unsigned();
-            $table->foreign('lead_stage_id')->references('id')->on('lead_stages')->onDelete('cascade');
+            $table->foreign('lead_stage_id')
+                ->references('id')
+                ->on('lead_stages')
+                ->onDelete('cascade');
 
-            $table->integer('lead_pipeline_id')->unsigned();
-            $table->foreign('lead_pipeline_id')->references('id')->on('lead_pipelines')->onDelete('cascade');
+            $table->foreign('lead_pipeline_id')
+                ->references('id')
+                ->on('lead_pipelines')
+                ->onDelete('cascade');
         });
     }
 

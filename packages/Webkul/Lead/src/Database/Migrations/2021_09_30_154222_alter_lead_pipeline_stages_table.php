@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('name')->after('code')->nullable();
         });
 
-        // Perbaikan query update untuk PostgreSQL
+        // Update data from lead_stages
         DB::statement('
             UPDATE lead_pipeline_stages lps
             SET code = ls.code,
@@ -29,7 +29,8 @@ return new class extends Migration
         ');
 
         Schema::table('lead_pipeline_stages', function (Blueprint $table) {
-            $table->dropForeign('lead_pipeline_stages_lead_stage_id_foreign');
+            // Drop the foreign key constraint using Laravel's naming convention
+            $table->dropForeign(['lead_stage_id']);
             $table->dropColumn('lead_stage_id');
 
             $table->unique(['code', 'lead_pipeline_id']);
@@ -45,11 +46,14 @@ return new class extends Migration
     public function down()
     {
         Schema::table('lead_pipeline_stages', function (Blueprint $table) {
-            $table->dropUnique(['lead_pipeline_stages_code_lead_pipeline_id_unique']);
-            $table->dropUnique(['lead_pipeline_stages_name_lead_pipeline_id_unique']);
+            $table->dropUnique(['code', 'lead_pipeline_id']);
+            $table->dropUnique(['name', 'lead_pipeline_id']);
 
             $table->integer('lead_stage_id')->unsigned();
-            $table->foreign('lead_stage_id')->references('id')->on('lead_stages')->onDelete('cascade');
+            $table->foreign('lead_stage_id')
+                ->references('id')
+                ->on('lead_stages')
+                ->onDelete('cascade');
 
             $table->dropColumn('code');
             $table->dropColumn('name');

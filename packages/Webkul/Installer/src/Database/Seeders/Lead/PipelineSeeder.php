@@ -17,11 +17,9 @@ class PipelineSeeder extends Seeder
     public function run($parameters = [])
     {
         DB::table('lead_pipelines')->delete();
-
         DB::table('lead_pipeline_stages')->delete();
 
         $now = Carbon::now();
-
         $defaultLocale = $parameters['locale'] ?? config('app.locale');
 
         DB::table('lead_pipelines')->insert([
@@ -34,49 +32,54 @@ class PipelineSeeder extends Seeder
             ],
         ]);
 
-        DB::table('lead_pipeline_stages')->insert($data = [
+        DB::table('lead_pipeline_stages')->insert([
             [
                 'id'               => 1,
+                'lead_pipeline_id' => 1,
                 'code'             => 'new',
                 'name'             => trans('installer::app.seeders.lead.pipeline.pipeline-stages.new', [], $defaultLocale),
                 'probability'      => 100,
                 'sort_order'       => 1,
-                'lead_pipeline_id' => 1,
-            ], [
+            ],
+            [
                 'id'               => 2,
+                'lead_pipeline_id' => 1,
                 'code'             => 'follow-up',
                 'name'             => trans('installer::app.seeders.lead.pipeline.pipeline-stages.follow-up', [], $defaultLocale),
                 'probability'      => 100,
                 'sort_order'       => 2,
-                'lead_pipeline_id' => 1,
-            ], [
+            ],
+            [
                 'id'               => 3,
+                'lead_pipeline_id' => 1,
                 'code'             => 'prospect',
                 'name'             => trans('installer::app.seeders.lead.pipeline.pipeline-stages.prospect', [], $defaultLocale),
                 'probability'      => 100,
                 'sort_order'       => 3,
-                'lead_pipeline_id' => 1,
-            ], [
+            ],
+            [
                 'id'               => 4,
+                'lead_pipeline_id' => 1,
                 'code'             => 'negotiation',
                 'name'             => trans('installer::app.seeders.lead.pipeline.pipeline-stages.negotiation', [], $defaultLocale),
                 'probability'      => 100,
                 'sort_order'       => 4,
-                'lead_pipeline_id' => 1,
-            ], [
+            ],
+            [
                 'id'               => 5,
+                'lead_pipeline_id' => 1,
                 'code'             => 'won',
                 'name'             => trans('installer::app.seeders.lead.pipeline.pipeline-stages.won', [], $defaultLocale),
                 'probability'      => 100,
                 'sort_order'       => 5,
-                'lead_pipeline_id' => 1,
-            ], [
+            ],
+            [
                 'id'               => 6,
+                'lead_pipeline_id' => 1,
                 'code'             => 'lost',
                 'name'             => trans('installer::app.seeders.lead.pipeline.pipeline-stages.lost', [], $defaultLocale),
                 'probability'      => 0,
                 'sort_order'       => 6,
-                'lead_pipeline_id' => 1,
             ],
         ]);
     }
