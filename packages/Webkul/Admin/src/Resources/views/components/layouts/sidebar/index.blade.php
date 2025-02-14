@@ -12,8 +12,9 @@
                     <a
                         class="flex gap-2 p-1.5 items-center cursor-pointer hover:rounded-lg {{ $menuItem->isActive() == 'active' ? 'bg-brandColor rounded-lg' : ' hover:bg-gray-100 hover:dark:bg-gray-950' }} peer"
                         href="{{ ! in_array($menuItem->getKey(), ['settings', 'configuration']) && $menuItem->haveChildren() ? 'javascript:void(0)' : $menuItem->getUrl() }}"
-                        @mouseleave="!isMenuActive ? hoveringMenu = '' : {}"
-                        @mouseover="hoveringMenu='{{ $menuItem->getKey() }}'"
+                        :data-menu-key="'{{ $menuItem->getKey() }}'"
+                        @mouseover="hoveringMenu = $event.target.closest('a').dataset.menuKey"
+                        @mouseleave="!isMenuActive ? hoveringMenu = '' : null"
                         @click="isMenuActive = !isMenuActive"
                     >
                         <span class="{{ $menuItem->getIcon() }} text-2xl {{ $menuItem->isActive() ? 'text-white' : ''}}"></span>
@@ -34,7 +35,7 @@
                     )
                         <div
                             class="absolute top-0 hidden flex-col bg-gray-100 ltr:left-[200px] rtl:right-[199px]"
-                            :class="[isMenuActive && (hoveringMenu == '{{ $menuItem->getKey() }}') ? '!flex' : 'hidden']"
+                            :class="[isMenuActive && (hoveringMenu === $el.previousElementSibling.dataset.menuKey) ? '!flex' : 'hidden']"
                         >
                             <div class="sidebar-rounded fixed z-[1000] h-full min-w-[140px] max-w-max bg-white pt-4 after:-right-[30px] dark:border-gray-800 dark:bg-gray-900 max-lg:hidden ltr:border-r rtl:border-x">
                                 <div class="journal-scroll h-[calc(100vh-100px)] overflow-hidden">
